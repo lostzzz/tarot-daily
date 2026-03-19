@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ 星辰塔罗 - 每日占卜</title>
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg:#0f0f1a;
+            --bg2:#1a1a2e;
+            --bg3:#252540;
+            --gold:#d4af37;
+            --gold2:#f0d875;
+            --gold3:#b8962e;
+            --purple:#7c3aed;
+            --purple2:#a78bfa;
+            --rose:#f43f5e;
+            --cyan:#06b6d4;
+            --text:#f8fafc;
+            --text2:#cbd5e1;
+            --muted:#64748b;
+        }
+        *{font-family:'Noto Sans SC',sans-serif}
+        body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+        
+        /* 神秘星空背景 */
+        .cosmos{position:fixed;inset:0;z-index:0;overflow:hidden}
+        .cosmos::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(124,58,237,.15)0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(212,175,55,.1)0%,transparent 50%),radial-gradient(ellipse at 50% 50%,#0f0f1a 0%,#0a0a12 100%)}
+        .nebula{position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(124,58,237,.15)0%,transparent 70%);top:-200px;left:-200px;animation:nebula 20s ease-in-out infinite}
+        .nebula2{position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(212,175,55,.1)0%,transparent 70%);bottom:-150px;right:-150px;animation:nebula2 25s ease-in-out infinite}
+        @keyframes nebula{0%,100%{transform:translate(0,0)rotate(0deg)}50%{transform:translate(50px,30px)rotate(10deg)}}
+        @keyframes nebula2{0%,100%{transform:translate(0,0)rotate(0deg)}50%{transform:translate(-30px,-20px)rotate(-5deg)}}
+        
+        .stars{position:absolute;inset:0}
+        .star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--duration,3s) ease-in-out infinite}
+        @keyframes twinkle{0%,100%{opacity:var(--min-opacity,.3);transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+        
+        .shooting{position:absolute;width:150px;height:2px;background:linear-gradient(90deg,rgba(255,255,255,.8),transparent);animation:shoot 4s linear infinite;opacity:0}
+        @keyframes shoot{0%{transform:translateX(-100px);opacity:0}10%{opacity:1}100%{transform:translateX(100vw);opacity:0}}
+        
+        .moon{position:absolute;top:8%;right:15%;width:80px;height:80px;background:radial-gradient(circle at 35% 35%,#fff9c4,#fcd34d);border-radius:50%;box-shadow:0 0 40px rgba(252,211,77,.5),0 0 80px rgba(252,211,77,.3);animation:moonGlow 6s ease-in-out infinite}
+        @keyframes moonGlow{0%,100%{box-shadow:0 0 40px rgba(252,211,77,.5),0 0 80px rgba(252,211,77,.3)}50%{box-shadow:0 0 50px rgba(252,211,77,.7),0 0 100px rgba(252,211,77,.4)}}
+        
+        .container{position:relative;z-index:10;max-width:480px;margin:0 auto;padding:30px 20px;min-height:100vh}
+        
+        /* 标题 */
+        header{text-align:center;padding:20px 0 30px}
+        .logo{font-size:3.5rem;margin-bottom:8px;animation:float 4s ease-in-out infinite}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+        h1{font-family:'ZCOOL XiaoWei',serif;font-size:2.2rem;background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:6px;margin-bottom:8px}
+        .subtitle{color:var(--muted);font-size:.85rem;letter-spacing:4px}
+        
+        /* 卡片 */
+        .card{background:linear-gradient(145deg,var(--bg2),var(--bg3));border-radius:24px;padding:28px;margin-bottom:20px;border:1px solid rgba(212,175,55,.15);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+        
+        .section-title{font-family:'ZCOOL XiaoWei',serif;font-size:1.3rem;color:var(--gold);text-align:center;margin-bottom:24px;position:relative}
+        .section-title::before,.section-title::after{content:'✧';margin:0 10px;color:var(--purple);font-size:1rem}
+        
+        /* 问题选择 */
+        .q-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+        .q-btn{background:linear-gradient(145deg,var(--bg3),#1e1e35);border:2px solid transparent;border-radius:20px;padding:24px 12px;cursor:pointer;transition:.4s;text-align:center;position:relative;overflow:hidden}
+        .q-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--purple),transparent);opacity:0;transition:.4s}
+        .q-btn:hover{border-color:var(--purple2);transform:translateY(-4px);box-shadow:0 12px 30px rgba(124,58,237,.3)}
+        .q-btn:hover::before{opacity:.15}
+        .q-btn.sel{border-color:var(--gold);background:linear-gradient(145deg,rgba(212,175,55,.15),rgba(212,175,55,.05))}
+        .q-btn.sel::before{opacity:.2}
+        .q-btn .icon{font-size:2.8rem;display:block;margin-bottom:10px;position:relative}
+        .q-btn .label{font-size:1rem;color:var(--text);position:relative;font-weight:500}
+        
+        /* 按钮 */
+        .btn{display:block;width:100%;padding:18px;font-family:'ZCOOL XiaoWei',serif;font-size:1.1rem;color:#0f0f1a;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:40px;cursor:pointer;letter-spacing:4px;transition:.3s;box-shadow:0 8px 30px rgba(212,175,55,.4)}
+        .btn:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(212,175,55,.5)}
+        .btn:disabled{background:var(--muted);cursor:not-allowed;box-shadow:none;transform:none}
+        
+        /* 倒计时 */
+        .countdown{text-align:center;padding:20px;color:var(--muted);font-size:.9rem}
+        .countdown .timer{color:var(--gold);font-family:'ZCOOL XiaoWei',serif;font-size:1.2rem}
+        
+        /* 抽牌区 */
+        .draw-area{margin:30px 0;text-align:center}
+        .card-wrapper{width:200px;height:300px;margin:0 auto;position:relative;perspective:1200px}
+        .tarot{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 1.2s cubic-bezier(.4,0,.2,1)}
+        .tarot.flipped{transform:rotateY(180deg)}
+        
+        .card-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+        
+        /* 牌背 */
+        .card-back{background:linear-gradient(145deg,#1a1a2e,#0f0f15);border:3px solid var(--purple);overflow:hidden}
+        .card-back::before{content:'';position:absolute;top:20px;left:20px;right:20px;bottom:20px;border:2px solid var(--purple);border-radius:12px;opacity:.3}
+        .card-back::after{content:'✦';font-size:4rem;color:var(--purple);opacity:.4;text-shadow:0 0 30px rgba(124,58,237,.5)}
+        
+        /* 牌面 */
+        .card-front{background:linear-gradient(145deg,var(--bg2),#12121f);border:3px solid var(--gold);transform:rotateY(180deg);flex-direction:column;padding:15px}
+        .card-img{width:130px;height:190px;object-fit:contain;border-radius:10px;background:#fff;box-shadow:0 8px 25px rgba(0,0,0,.4)}
+        .card-num{position:absolute;top:12px;left:14px;font-family:'ZCOOL XiaoWei',serif;font-size:1rem;color:var(--gold)}
+        .card-name{font-family:'ZCOOL XiaoWei',serif;font-size:1.3rem;color:var(--gold);margin-top:12px;letter-spacing:2px}
+        .card-en{font-size:.75rem;color:var(--muted);margin-top:4px}
+        
+        .hint{color:var(--muted);margin-top:20px;font-size:.9rem}
+        
+        /* 结果页 */
+        .result{animation:fadeIn .6s ease}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        
+        .r-card{background:linear-gradient(145deg,var(--bg2),var(--bg3));border-radius:24px;padding:25px;margin-bottom:20px;border:1px solid rgba(212,175,55,.2);text-align:center}
+        .r-img{width:160px;height:240px;object-fit:contain;border-radius:14px;box-shadow:0 15px 50px rgba(0,0,0,.5);margin-bottom:20px}
+        .r-name{font-family:'ZCOOL XiaoWei',serif;font-size:1.6rem;color:var(--gold);margin-bottom:4px}
+        .r-en{font-size:.85rem;color:var(--muted);margin-bottom:15px}
+        .r-tag{display:inline-block;background:linear-gradient(135deg,var(--purple),#5b21b6);color:#fff;padding:6px 20px;border-radius:20px;font-size:.85rem;margin-bottom:20px}
+        
+        .r-section{text-align:left;padding:18px;background:rgba(124,58,237,.08);border-radius:14px;margin:16px 0;border-left:4px solid var(--purple)}
+        .r-section.advice{background:rgba(212,175,55,.08);border-left-color:var(--gold)}
+        .r-label{font-size:.8rem;color:var(--purple);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+        .r-label::before{content:'◈'}
+        .r-label.adv{color:var(--gold)}
+        .r-label.adv::before{content:'★'}
+        .r-text{font-size:.95rem;line-height:1.8;color:var(--text2)}
+        
+        .r-luck{background:var(--bg);border-radius:16px;padding:18px;margin-top:18px}
+        .r-luck-t{font-size:.85rem;color:var(--gold);margin-bottom:14px;text-align:center}
+        .r-luck-g{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+        .r-luck-i{background:var(--bg2);padding:12px 6px;border-radius:12px;text-align:center}
+        .r-luck-i .ic{font-size:1.4rem;display:block;margin-bottom:4px}
+        .r-luck-i .lb{font-size:.6rem;color:var(--muted);display:block}
+        .r-luck-i .val{font-size:.8rem;color:var(--gold);font-weight:500}
+        
+        .mback{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;animation:fadeIn .3s}
+        .mback.show{display:flex}
+        .modal{background:linear-gradient(145deg,var(--bg2),#0f0f18);border-radius:28px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;border:1px solid rgba(212,175,55,.3);animation:slideUp .4s}
+        @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+        .mhead{text-align:center;padding:25px;border-bottom:1px solid rgba(124,58,237,.2)}
+        .m-img{width:170px;height:250px;object-fit:contain;border-radius:14px;box-shadow:0 15px 50px rgba(0,0,0,.5)}
+        .m-name{font-family:'ZCOOL XiaoWei',serif;font-size:1.5rem;color:var(--gold);margin:15px 0 5px}
+        .m-en{font-size:.8rem;color:var(--muted)}
+        .m-pos{display:inline-block;background:var(--purple);color:#fff;padding:5px 16px;border-radius:15px;font-size:.8rem;margin-top:12px}
+        .m-body{padding:22px}
+        .m-q{background:var(--bg);border-radius:14px;padding:15px;margin-bottom:18px;text-align:center}
+        .m-q .lb{font-size:.75rem;color:var(--muted)}
+        .m-q .val{font-size:1.1rem;color:var(--gold);margin-top:5px}
+        .m-sec{margin:16px 0}
+        .m-t{font-size:.78rem;color:var(--purple);margin-bottom:8px}
+        .m-t::before{content:'◈ ';margin-right:4px}
+        .m-t.gold{color:var(--gold)}
+        .m-t.gold::before{content:'★ '}
+        .m-txt{font-size:.95rem;line-height:1.8;color:var(--text2)}
+        .mclose{width:100%;padding:15px;background:0 0;border:none;border-top:1px solid rgba(124,58,237,.2);color:var(--muted);cursor:pointer;font-size:.95rem;transition:.3s}
+        .mclose:hover{background:rgba(124,58,237,.1);color:var(--text)}
+        
+        .hidden{display:none!important}
+        @media(max-width:400px){.q-grid{grid-template-columns:1fr;gap:12px}.card-wrapper{width:160px;height:240px}.card-img{width:100px;height:150px}}
+    </style>
+</head>
+<body>
+    <div class="cosmos">
+        <div class="nebula"></div>
+        <div class="nebula2"></div>
+        <div class="stars" id="stars"></div>
+        <div class="moon"></div>
+    </div>
+    
+    <div class="container">
+        <header>
+            <div class="logo">🌙</div>
+            <h1>星辰塔罗</h1>
+            <p class="subtitle">每日一次 · 神秘指引</p>
+        </header>
+        
+        <!-- 问题选择 -->
+        <div class="card" id="qSec">
+            <h2 class="section-title">感应你的问题</h2>
+            <div class="q-grid">
+                <div class="q-btn" data-t="爱情" onclick="selectQ(this)">
+                    <span class="icon">💗</span>
+                    <span class="label">爱情</span>
+                </div>
+                <div class="q-btn" data-t="事业" onclick="selectQ(this)">
+                    <span class="icon">📈</span>
+                    <span class="label">事业</span>
+                </div>
+                <div class="q-btn" data-t="财富" onclick="selectQ(this)">
+                    <span class="icon">💎</span>
+                    <span class="label">财富</span>
+                </div>
+            </div>
+            <button class="btn" id="startBtn" onclick="startD()">✨ 开启占卜</button>
+        </div>
+        
+        <!-- 抽牌区 -->
+        <div class="card hidden" id="drawSec">
+            <h2 class="section-title">抽取你的命运之牌</h2>
+            <div class="draw-area">
+                <div class="card-wrapper">
+                    <div class="tarot" id="theTarot">
+                        <div class="card-face card-back"></div>
+                        <div class="card-face card-front">
+                            <span class="card-num" id="cardNum"></span>
+                            <img class="card-img" id="cardImg" src="" alt="">
+                            <div class="card-name" id="cardName"></div>
+                            <div class="card-en" id="cardEn"></div>
+                        </div>
+                    </div>
+                </div>
+                <p class="hint" id="hint">点击按钮抽取塔罗牌</p>
+            </div>
+            <button class="btn" id="drawBtn" onclick="drawC()">🔮 抽取塔罗牌</button>
+        </div>
+        
+        <!-- 今日已占卜 -->
+        <div class="card hidden" id="countSec">
+            <div class="countdown">
+                <p>今日占卜已完成</p>
+                <p class="timer" id="timer"></p>
+            </div>
+            <button class="btn" onclick="viewLast()">📜 查看上次结果</button>
+        </div>
+        
+        <!-- 结果页 -->
+        <div class="result hidden" id="resultSec">
+            <div class="r-card">
+                <img class="r-img" id="rImg" src="" alt="">
+                <div class="r-name" id="rName"></div>
+                <div class="r-en" id="rEn"></div>
+                <span class="r-tag" id="rTag"></span>
+                
+                <div class="r-section">
+                    <p class="r-label">星语解读</p>
+                    <p class="r-text" id="rMean"></p>
+                </div>
+                <div class="r-section advice">
+                    <p class="r-label adv">灵慧指引</p>
+                    <p class="r-text" id="rAdv"></p>
+                </div>
+                
+                <div class="r-luck">
+                    <p class="r-luck-t">✦ 今日幸运 ✦</p>
+                    <div class="r-luck-g" id="rLuck"></div>
+                </div>
+            </div>
+            <button class="btn" onclick="resetA()">↺ 重新占卜</button>
+        </div>
+    </div>
+    
+    <!-- 弹窗 -->
+    <div class="mback" id="modal">
+        <div class="modal">
+            <div class="mhead">
+                <img class="m-img" id="mImg" src="">
+                <div class="m-name" id="mName"></div>
+                <div class="m-en" id="mEn"></div>
+                <span class="m-pos" id="mPos"></span>
+            </div>
+            <div class="m-body">
+                <div class="m-q">
+                    <p class="lb">你问的是</p>
+                    <p class="val" id="mQ"></p>
+                </div>
+                <div class="m-sec">
+                    <p class="m-t">星语解读</p>
+                    <p class="m-txt" id="mMean"></p>
+                </div>
+                <div class="m-sec">
+                    <p class="m-t gold">灵慧指引</p>
+                    <p class="m-txt" id="mAdv"></p>
+                </div>
+            </div>
+            <button class="mclose" onclick="closeM()">关闭</button>
+        </div>
+    </div>
+
+<script>
+// 22张塔罗牌 - 趣味解读版
+const tarot=[
+{id:0,n:'愚人',e:'The Fool',i:'http://www.learntarot.com/maj00s.gif',
+l:'🌸 爱情如同一场未知的冒险，你准备好迎接惊喜了吗？可能转角遇到爱，或者遇到一个让你心跳加速的TA！单身的朋友们，桃花运正在靠近哦～已有伴的，可能和另一半开启一段新旅程！',c:'🚀 事业上像一张白纸等着你书写！新机会像突然掉下来的馅饼，可能是新项目、创业灵感，或者有人给你指了条明路。大胆去尝试吧，宇宙在帮你铺路呢！',mo:'💰 财运来了挡不住！可能突然多了一条来钱路，比如兼职、投资回报，或者有人请你吃饭买单。新钱包在路上啦～'},
+{id:1,n:'魔术师',e:'The Magician',i:'http://www.learntarot.com/maj01s.gif',
+l:'✨ 展现你真正的魅力吧！吸引力法则生效中，表白成功率 up up！单身的朋友，是时候放出你的魅力电波了～有伴的，和另一半创造一些小惊喜，感情升温！',c:'💪 能量爆棚期！你的能力正在被看见，升职加薪或被委以重任的可能性很高。把握机会，你的才华该发光发热了！',mo:'🤑 聪明才智变现时！脑子灵活，赚钱点子特别多。可能会收到意想不到的收益，或者买到超值的东东。'},
+{id:2,n:'女祭司',e:'The Priestess',i:'http://www.learntarot.com/maj02s.gif',
+l:'💕 爱情不急，时候未到。先倾听内心的声音，TA也在等你准备好。独处一段时间不是坏事，真爱值得等待～',c:'🧠 需要动脑筋的时期！不要冲动做决定，先冷静分析。灵感可能在你放空的时候突然降临。',mo:'🛡️ 稳住别浪！投资决策要谨慎，三思而后行。钱要花在刀刃上，不要冲动购物或投资。'},
+{id:3,n:'皇后',e:'The Empress',i:'http://www.learntarot.com/maj03s.gif',
+l:'🌺 魅力四射！桃花朵朵开，单身的有望遇到理想型，已婚的感情甜如蜜。女性贵人还可能给你介绍优质对象哦～',c:'👩‍💼 女性贵人运爆棚！女领导、女合作伙伴可能给你带来好运。职场氛围和谐，做事顺风水。',mo:'🌾 收获的季节！之前种下的种子该结果了，可能是奖金、投资回报，或者努力换来的丰厚报酬。'},
+{id:4,n:'皇帝',e:'The Emperor',i:'http://www.learntarot.com/maj04s.gif',
+l:'👑 感情需要主动出击！男生们，展示你可靠的一面成功率更高。给TA一个稳定的安全感，爱情就稳了～',c:'🏢 稳扎稳打期！领导力是你的关键词。制定计划，按部就班推进，权力和地位会来找你。',mo:'💵 财务稳定，但别想一夜暴富。踏实地管好你的钱袋子，别投机取巧。'},
+{id:5,n:'教皇',e:'The Hierophant',i:'http://www.learntarot.com/maj05s.gif',
+l:'📚 传统路线成功率更高！相亲、朋友介绍、长辈安排的局可以去试试。缘分天注定～',c:'🎓 有经验的导师来帮你！虚心学习，前辈的经验能让你的职场之路少走弯路。',mo:'📈 稳健投资为主。不要冒险，保守理财反而更安全。'},
+{id:6,n:'恋人',e:'The Lovers',i:'http://www.learntarot.com/maj06s.gif',
+l:'💘 浪漫剧情来袭！无论单恋还是已婚，爱情運好到爆。可能有人表白，或者和现任甜甜蜜蜜！',c:'⚖️ 面临重大选择！是时候跟从内心做决定了。两个选项都还不错，follow your heart～',mo:'⚖️ 平衡木走起！各方面要均衡，不要只顾着赚钱而忽略其他。'},
+{id:7,n:'战车',e:'The Chariot',i:'http://www.learntarot.com/maj07s.gif',
+l:'🏃 主动才会有故事！别坐着等爱情来了，出门社交、主动搭讪，幸福的概率更高！',c:'🏁 胜利在望！只要足够努力，冠军就是你的。保持决心往前冲，管他对手是谁！',mo:'💰 努力有回报！但要注意方式方法，方向对了钱就来了。'},
+{id:8,n:'力量',e:'Strength',i:'http://www.learntarot.com/maj08s.gif',
+l:'💗 以柔克刚！用耐心和爱心慢慢攻破TA的心防。温柔的套路比硬来更有效哦～',c:'💪 内心强大才是真强大！遇到困难别硬碰，曲线救国更明智。坚持就是胜利！',mo:'⏳ 耐心等待收获。不到最后一刻别放弃，好戏在后头！'},
+{id:9,n:'隐士',e:'The Hermit',i:'http://www.learntarot.com/maj09s.gif',
+l:'🏠 独处时光也美好！先学会爱自己，缘分自然来。不急，先让自己变得更好～',c:'🔍 需要一个人静静。远离喧嚣想想清楚，答案会自动浮现。',mo:'🔒 谨慎为上。大额投资免谈，小心跳坑里。'},
+{id:10,n:'命运之轮',e:'Wheel of Fortune',i:'http://www.learntarot.com/maj10s.gif',
+l:'🌟 命运般的爱情正在靠近！可能是偶然的相遇，可能是老同学的惊喜联系。准备好迎接了吗？',c:'🍀 好运来敲门！犹豫就会败北，该出手时就出手。机会不等人！',mo:'🎁 财运转折点！可能有意想不到的惊喜，比如中奖、红包、加薪！'},
+{id:11,n:'正义',e:'Justice',i:'http://www.learntarot.com/maj11s.gif',
+l:'⚖️ 公平公正对待感情！三角恋、暧昧不清的该做个了断了。问心无愧就好～',c:'🔄 因果循环。你付出的努力会以某种方式回来，宇宙不会亏待你！',mo:'⚖️ 收支平衡。别贪心，该是你的跑不掉，不是你的别强求。'},
+{id:12,n:'倒吊人',e:'The Hanged Man',i:'http://www.learntarot.com/maj12s.gif',
+l:'🔄 换个角度看问题！也许当前卡住的情况，转变思维后反而是转机。',c:'⏸️ 暂停不是放弃，是为了更好地前进。休息一下再出发！',mo:'⏳ 时机未到。耐心点，好事多磨。'},
+{id:13,n:'死神',e:'Death',i:'http://www.learntarot.com/maj13s.gif',
+l:'🪦 旧的不去新的不来！结束一段才能迎来新的开始。分手不可怕，单身快乐多～',c:'🔄 破旧立新时期！旧的模式该打破了，新机会正在等你。转变是为了更好的未来！',mo:'🆕 旧的财务状况再见！可能是还清债务、结束亏损，迎来新篇章。'},
+{id:14,n:'节制',e:'Temperance',i:'http://www.learntarot.com/maj14s.gif',
+l:'⚖️ 找到平衡点！爱情不是生活的全部，也不要太忽略TA。刚刚好最舒服～',c:'⚖️ 工作生活要平衡！别光顾着赚钱，身体和灵魂都需要休息。',mo:'🧘 收支平衡。不该花的钱别乱花，理财要佛系。'},
+{id:15,n:'恶魔',e:'The Devil',i:'http://www.learntarot.com/maj15s.gif',
+l:'😈 小心爱情的陷阱！可能被冲昏头脑，或者陷入三角恋。恋爱脑该清醒了！',c:'😰 工作压力有点大。注意身体和心理健康，别太卷了。',mo:'🕳️ 小心财务坑！高收益背后可能是骗局，贪心会后悔。'},
+{id:16,n:'高塔',e:'The Tower',i:'http://www.learntarot.com/maj16s.gif',
+l:'💥 突发变化！可能突然结束一段关系，或者认识完全不一样的人。虽然疼，但结果是重生！',c:'💥 意外来敲门！计划赶不上变化，虽然措手不及，但结果是好的。',mo:'🎢 意外支出或收入都有可能。保持佛系，兵来将挡水来土掩。'},
+{id:17,n:'星星',e:'The Star',i:'http://www.learntarot.com/maj17s.gif',
+l:'🌟 希望之光！爱情運很好，单身的有望脱单，已婚的更加甜蜜。保持乐观，美好的事正在发生～',c:'💡 灵感爆发！你的创意可能会改变一切。想法有机会实现的大吉兆！',mo:'🌈 财务上有希望！黎明前的黑暗即将过去，好消息在路上。'},
+{id:18,n:'月亮',e:'The Moon',i:'http://www.learntarot.com/maj18s.gif',
+l:'🌙 注意！TA可能有事瞒着你。用你的直觉去判断，第六感通常很准～',c:'🔍 表面下可能有坑！保持清醒，别被表象迷惑。真相需要挖掘。',mo:'🌊 投资要小心！隐藏的风险可能爆发，保守为上。'},
+{id:19,n:'太阳',e:'The Sun',i:'http://www.learntarot.com/maj19s.gif',
+l:'☀️ 超级幸运日！爱情事业双丰收，感觉人生到达了巅峰！撒花庆祝～',c:'🏆 荣耀时刻！之前的努力终于有回报了。高光时刻，闪闪发光！',mo:'💰 财运爆棚！大丰收的季节，数钱数到手抽筋！'},
+{id:20,n:'审判',e:'Judgement',i:'http://www.learntarot.com/maj20s.gif',
+l:'🔔 审判的时刻！可能收到前任的消息，或者过往的感情有个了断。新生即将开始～',c:'🌅 觉醒之时！过去的努力会以某种方式回报。准备迎接好消息！',mo:'⚖️ 出来混要还！该收的收，该还的还，财务重新洗牌。'},
+{id:21,n:'世界',e:'The World',i:'http://www.learntarot.com/maj21s.gif',
+l:'🎉 爱情圆满！有情人终成眷属，或者修成正果。幸福指数爆表！',c:'🏁 目标达成！努力画上完美句号。Congratulations!',mo:'🎊 大丰收！努力得到了丰厚回报，可以犒劳自己了！'}
+];
+
+const luck={c:['星耀金','神秘紫','月光白','玫瑰红'],n:['3','7','12','21'],cr:['紫水晶','月光石','白水晶','红玛瑙'],a:['冥想','阅读','创作','社交']};
+
+let question='',qType='',currentCard=null;
+let lastResult=null;
+
+// 初始化星空
+function createStars(){
+    const s=document.getElementById('stars');
+    for(let i=0;i<80;i++){
+        let x=document.createElement('div');
+        x.className='star';
+        x.style.left=Math.random()*100+'%';
+        x.style.top=Math.random()*100+'%';
+        x.style.width=x.style.height=(Math.random()*2+1.5)+'px';
+        x.style.setProperty('--duration',(Math.random()*2+2)+'s');
+        x.style.setProperty('--min-opacity',.2);
+        x.style.animationDelay=Math.random()*3+'s';
+        s.appendChild(x);
+    }
+    // 流星
+    for(let i=0;i<3;i++){
+        let m=document.createElement('div');
+        m.className='shooting';
+        m.style.top=(Math.random()*60+20)+'%';
+        m.style.left=(Math.random()*30)+'%';
+        m.style.animationDelay=Math.random()*5+'s';
+        s.appendChild(m);
+    }
+}
+
+// 检查是否今天已占卜
+function checkDaily(){
+    const today=new Date().toDateString();
+    const last=localStorage.getItem('tarot_last_date');
+    lastResult=JSON.parse(localStorage.getItem('tarot_last_result')||'null');
+    
+    if(last===today && lastResult){
+        document.getElementById('qSec').classList.add('hidden');
+        document.getElementById('countSec').classList.remove('hidden');
+        updateTimer();
+        return true;
+    }
+    return false;
+}
+
+// 更新倒计时
+function updateTimer(){
+    const now=new Date();
+    const tomorrow=new Date(now);
+    tomorrow.setDate(tomorrow.getDate()+1);
+    tomorrow.setHours(0,0,0,0);
+    const diff=tomorrow-now;
+    const h=Math.floor(diff/3600000);
+    const m=Math.floor((diff%3600000)/60000);
+    document.getElementById('timer').textContent=`${h}小时${m}分钟后可再次占卜`;
+}
+
+// 选择问题
+function selectQ(el){
+    document.querySelectorAll('.q-btn').forEach(x=>x.classList.remove('sel'));
+    el.classList.add('sel');
+    qType=el.dataset.t;
+}
+
+// 开始占卜
+function startD(){
+    if(!qType){alert('请选择一个想问的问题');return;}
+    question=qType;
+    document.getElementById('qSec').classList.add('hidden');
+    document.getElementById('drawSec').classList.remove('hidden');
+}
+
+// 抽牌
+function drawC(){
+    const btn=document.getElementById('drawBtn');
+    btn.disabled=true;
+    btn.textContent='洗牌中...';
+    document.getElementById('hint').textContent='命运之牌正在显现...';
+    
+    setTimeout(()=>{
+        const card=tarot[Math.floor(Math.random()*tarot.length)];
+        currentCard=card;
+        
+        const t=document.getElementById('theTarot');
+        t.classList.remove('flipped');
+        
+        setTimeout(()=>{
+            document.getElementById('cardNum').textContent=card.id;
+            document.getElementById('cardImg').src=card.i;
+            document.getElementById('cardName').textContent=card.n;
+            document.getElementById('cardEn').textContent=card.e;
+            t.classList.add('flipped');
+            
+            setTimeout(()=>{
+                showResult();
+                saveResult();
+                btn.disabled=false;
+                btn.textContent='🔮 重新抽牌';
+                document.getElementById('hint').textContent='牌面已翻转，看看你的命运吧';
+            },1500);
+        },800);
+    },600);
+}
+
+// 问题类型映射到卡牌字段
+const qMap={'爱情':'l','事业':'c','财富':'mo'};
+
+// 显示结果
+function showResult(){
+    const c=currentCard;
+    document.getElementById('drawSec').classList.add('hidden');
+    document.getElementById('resultSec').classList.remove('hidden');
+    
+    document.getElementById('rImg').src=c.i;
+    document.getElementById('rName').textContent=c.n;
+    document.getElementById('rEn').textContent=c.e;
+    document.getElementById('rTag').textContent=question;
+    
+    const field=qMap[question]||'l';
+    const meaning=c[field]||c.l;
+    
+    // 根据牌和问题类型给出不同建议
+    const advice={
+      '愚人':question==='爱情'?'大胆去爱，宇宙会帮你安排！':question==='事业'?'追随内心，勇敢尝试新方向！':'新机会来了，准备接住！',
+      '魔术师':question==='爱情'?'展现真实魅力，TA会被你吸引！':question==='事业'?'你的能力足够，开始行动吧！':'聪明才智可以变现了！',
+      '女祭司':question==='爱情'?'耐心等待，缘分天注定！':question==='事业'?'先思考再行动，三思而后行！':'不要冲动，静观其变！',
+      '皇后':question==='爱情'?'魅力全开，桃花朵朵开！':question==='事业'?'女性贵人运强，留意身边机会！':'收获的季节来了！',
+      '皇帝':question==='爱情'?'给TA安全感，负责任一点！':question==='事业'?'展现领导力，稳扎稳打！':'财务稳定，别冒险！',
+      '教皇':question==='爱情'?'传统方式可能更有效！':question==='事业'?'找个导师，你会进步更快！':'稳健理财，别想太多！',
+      '恋人':question==='爱情'?'跟随内心，选择真爱！':question==='事业'?'面临抉择，想清楚要什么！':'平衡各方，不要偏废！',
+      '战车':question==='爱情'?'主动出击，不要怂！':question==='事业'?'胜利在望，冲就对了！':'努力会有回报！',
+      '力量':question==='爱情'?'用耐心和温柔打动TA！':question==='事业'?'内心强大，无所畏惧！':'耐心等待收获！',
+      '隐士':question==='爱情'?'先学会独处，爱自己！':question==='事业'?'给自己冷静思考的空间！':'谨慎投资，别冲动！',
+      '命运之轮':question==='爱情'?'命运般的邂逅要来了！':question==='事业'?'好运来了，抓住机会！':'意外惊喜等着你！',
+      '正义':question==='爱情'?'公平对待每一段感情！':question==='事业'?'因果循环，继续努力！':'收支平衡，别贪心！',
+      '倒吊人':question==='爱情'?'换个角度，可能有新发现！':question==='事业'?'暂停是为了更好的前进！':'时机未到，耐心！',
+      '死神':question==='爱情'?'旧的不去新的不来！':question==='事业'?'破旧立新，迎接新机会！':'旧的结束，新的开始！',
+      '节制':question==='爱情'?'找到平衡点，别太粘！':question==='事业'?'工作生活要平衡！':'收支平衡最重要！',
+      '恶魔':question==='爱情'?'小心陷阱，及时清醒！':question==='事业'?'注意压力，保护好自己！':'小心财务陷阱！',
+      '高塔':question==='爱情'?'变化来了，接受它！':question==='事业'?'意外变化，但结果是好的！':'兵来将挡，水来土掩！',
+      '星星':question==='爱情'?'希望满满，保持乐观！':question==='事业'?'灵感爆发，把握机会！':'希望之光就在前方！',
+      '月亮':question==='爱情'?'注意TA的隐瞒！':question==='事业'?'表面下有坑，小心！':'投资要谨慎！',
+      '太阳':question==='爱情'?'超级幸运日，尽情享受！':question==='事业'?'荣耀时刻，你的光芒万丈！':'财运爆棚，数钱到手软！',
+      '审判':question==='爱情'?'是时候做个了断了！':question==='事业'?'觉醒时刻，好消息要来！':'该来的总会来！',
+      '世界':question==='爱情'?'完美结局，恭喜！':question==='事业'?'目标达成，完美收官！':'大丰收，犒劳自己！'
+    };
+    document.getElementById('rMean').textContent=meaning;
+    document.getElementById('rAdv').textContent=advice[c.n]||'保持信念，美好的事情正在发生～';
+    
+    const l={c:luck.c[Math.floor(Math.random()*luck.c.length)],n:luck.n[Math.floor(Math.random()*luck.n.length)],cr:luck.cr[Math.floor(Math.random()*luck.cr.length)],a:luck.a[Math.floor(Math.random()*luck.a.length)]};
+    document.getElementById('rLuck').innerHTML=`<div class="r-luck-i"><span class="ic">🎨</span><span class="lb">幸运色</span><span class="val">${l.c}</span></div><div class="r-luck-i"><span class="ic">🔢</span><span class="lb">幸运数</span><span class="val">${l.n}</span></div><div class="r-luck-i"><span class="ic">💎</span><span class="lb">幸运石</span><span class="val">${l.cr}</span></div><div class="r-luck-i"><span class="ic">✨</span><span class="lb">宜做</span><span class="val">${l.a}</span></div>`;
+}
+
+// 保存结果
+function saveResult(){
+    const today=new Date().toDateString();
+    localStorage.setItem('tarot_last_date',today);
+    localStorage.setItem('tarot_last_result',JSON.stringify({card:currentCard,question:question,date:new Date().toLocaleString()}));
+}
+
+// 查看上次结果
+function viewLast(){
+    if(lastResult){
+        currentCard=lastResult.card;
+        question=lastResult.question;
+        showResult();
+    }
+}
+
+// 重置
+function resetA(){
+    location.reload();
+}
+
+// 初始化
+createStars();
+checkDaily();
+</script>
+</body>
+</html>
