@@ -377,6 +377,18 @@ function createStars(){
     }
 }
 
+// Firebase 配置
+const firebaseConfig = {
+  apiKey: "AIzaSyB5q2LyiVYlOWYH8DKztGVxzX7bwupqCLg",
+  authDomain: "tarot-daily-b9083.firebaseapp.com",
+  projectId: "tarot-daily-b9083",
+  storageBucket: "tarot-daily-b9083.firebasestorage.app",
+  messagingSenderId: "980788151578",
+  appId: "1:980788151578:web:6f559638cf04295d9a58a3"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 // 检查今天已占卜次数
 function checkDaily(){
     const today=new Date().toDateString();
@@ -507,7 +519,6 @@ function showResult(){
     document.getElementById('rLuck').innerHTML=`<div class="r-luck-i"><span class="ic">🎨</span><span class="lb">幸运色</span><span class="val">${l.c}</span></div><div class="r-luck-i"><span class="ic">🔢</span><span class="lb">幸运数</span><span class="val">${l.n}</span></div><div class="r-luck-i"><span class="ic">💎</span><span class="lb">幸运石</span><span class="val">${l.cr}</span></div><div class="r-luck-i"><span class="ic">✨</span><span class="lb">宜做</span><span class="val">${l.a}</span></div>`;
     
     // 保存到本地和 Firebase
-    const nickname=window.userNickname||'神秘占卜师';
     const record={
         nickname:nickname,
         question:question,
@@ -565,18 +576,6 @@ function showWish(){
 }
 
 // 提交愿望并显示祝福
-// Firebase 配置
-const firebaseConfig = {
-  apiKey: "AIzaSyB5q2LyiVYlOWYH8DKztGVxzX7bwupqCLg",
-  authDomain: "tarot-daily-b9083.firebaseapp.com",
-  projectId: "tarot-daily-b9083",
-  storageBucket: "tarot-daily-b9083.firebasestorage.app",
-  messagingSenderId: "980788151578",
-  appId: "1:980788151578:web:6f559638cf04295d9a58a3"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
 function submitWish(){
     const wish=document.getElementById('wishText').value.trim();
     if(!wish){alert('请输入你的愿望');return;}
