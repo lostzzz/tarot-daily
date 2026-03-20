@@ -489,6 +489,7 @@ function showResult(){
     const c=currentCard;
     document.getElementById('drawSec').classList.add('hidden');
     document.getElementById('resultSec').classList.remove('hidden');
+    window.scrollTo(0,0);
     
     const nickname=window.userNickname||'神秘占卜师';
     document.getElementById('rImg').src=c.i;
@@ -585,6 +586,9 @@ function viewLast(){
 function showWish(){
     document.getElementById('resultSec').classList.add('hidden');
     document.getElementById('wishSec').classList.remove('hidden');
+    window.scrollTo(0,0);
+    document.body.scrollTop=0;
+    document.documentElement.scrollTop=0;
 }
 
 // 提交愿望并显示祝福
@@ -630,6 +634,7 @@ function submitWish(){
     
     document.getElementById('wishSec').classList.add('hidden');
     document.getElementById('blessSec').classList.remove('hidden');
+    window.scrollTo(0,0);
     document.getElementById('blessTitle').textContent='✨ '+window.userNickname+'，你的愿望已收到 ✨';
     document.getElementById('blessText').textContent=bless;
 }
@@ -643,6 +648,6 @@ function resetA(){
 createStars();
 checkDaily();
 </script>
-    <div style="text-align:center;padding:20px;font-size:12px;color:#666;">v1.3.3 (2026-03-20)</div>
+    <div style="text-align:center;padding:20px;font-size:12px;color:#666;">v1.3.4 (2026-03-20)</div>
 </body>
 </html>
