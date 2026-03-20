@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>星辰塔罗 - 管理后台</title>
-    <meta name="version" content="1.3.0">
+    <meta name="version" content="1.3.5">
     <meta name="version-date" content="2026-03-20">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -192,27 +192,34 @@
                 <td style="color:var(--gold)">${r.nickname}</td>
                 <td><span class="card-tag">${r.question}</span></td>
                 <td>${r.card} (${r.cardEn})</td>
-                <td style="max-width:180px;color:var(--gold2)">${r.wish||'-'}</td>
-                <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.meaning}">${r.meaning}</td>
+                <td style="color:var(--gold2);word-break:break-all">${r.wish||'-'}</td>
+                <td style="word-break:break-all">${r.meaning}</td>
             </tr>
         `).join('');
     }
     
     function exportData(){
-        const data=JSON.parse(localStorage.getItem('tarot_records')||'[]');
-        const csv='时间,昵称,问题类型,塔罗牌,英文名,愿望,解读\n'+data.map(r=>`${r.date},"${r.nickname}",${r.question},${r.card},${r.cardEn},"${(r.wish||'').replace(/"/g,'""')}","${r.meaning.replace(/"/g,'""')}"`).join('\n');
-        const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
-        const url=URL.createObjectURL(blob);
-        const a=document.createElement('a');
-        a.href=url;
-        a.download='tarot_records.csv';
-        a.click();
+        db.ref('records').once('value', (snapshot) => {
+            const data = [];
+            snapshot.forEach((child) => {
+                data.push(child.val());
+            });
+            const csv='时间,昵称,问题类型,塔罗牌,英文名,愿望,解读\n'+data.map(r=>`${r.date||''},"${r.nickname||''}",${r.question||''},${r.card||''},${r.cardEn||''},"${(r.wish||'').replace(/"/g,'""')}","${(r.meaning||'').replace(/"/g,'""')}"`).join('\n');
+            const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+            const url=URL.createObjectURL(blob);
+            const a=document.createElement('a');
+            a.href=url;
+            a.download='tarot_records.csv';
+            a.click();
+        });
     }
     
     function clearData(){
         if(confirm('确定要清空所有记录吗？此操作不可恢复！')){
-            localStorage.removeItem('tarot_records');
-            loadData();
+            db.ref('records').remove().then(()=>{
+                alert('已清空所有记录');
+                loadData();
+            });
         }
     }
 </script>
