@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>✨ 星辰塔罗 - 每日占卜</title>
-    <meta name="version" content="1.1.0">
-    <meta name="version-date" content="2026-03-20">
     <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
@@ -82,17 +80,16 @@
         
         /* 抽牌区 */
         .draw-area{margin:30px 0;text-align:center}
-        .card-wrapper{width:180px;height:280px;margin:0 auto;position:relative;perspective:1200px}
+        .card-wrapper{width:200px;height:300px;margin:0 auto;position:relative;perspective:1200px}
         .tarot{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 1.2s cubic-bezier(.4,0,.2,1)}
         .tarot.flipped{transform:rotateY(180deg)}
         
         .card-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 60px rgba(0,0,0,.6)}
         
         /* 牌背 */
-        .card-back{background:linear-gradient(145deg,#1a1a24 0%,#12121a 50%,#1a1a24 100%);border-radius:12px;cursor:pointer;position:relative;transition:all .3s;display:flex;align-items:center;justify-content:center;border:2px solid var(--gold)}
-        .card-back:hover{transform:scale(1.05);box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px rgba(201,162,39,.3)}
+        .card-back{background:linear-gradient(145deg,#1a1a2e,#0f0f15);border:3px solid var(--purple);overflow:hidden}
         .card-back::before{content:'';position:absolute;top:20px;left:20px;right:20px;bottom:20px;border:2px solid var(--purple);border-radius:12px;opacity:.3}
-        .card-back::after{content:'☽';font-size:3.5rem;color:var(--gold);text-shadow:0 0 20px rgba(201,162,39,.5)}
+        .card-back::after{content:'✦';font-size:4rem;color:var(--purple);opacity:.4;text-shadow:0 0 30px rgba(124,58,237,.5)}
         
         /* 牌面 */
         .card-front{background:linear-gradient(145deg,var(--bg2),#12121f);border:3px solid var(--gold);transform:rotateY(180deg);flex-direction:column;padding:15px}
@@ -152,8 +149,6 @@
         .mclose:hover{background:rgba(124,58,237,.1);color:var(--text)}
         
         .hidden{display:none!important}
-        
-        .wish-page,.blessing-page{margin-top:15px}
         @media(max-width:400px){.q-grid{grid-template-columns:1fr;gap:12px}.card-wrapper{width:160px;height:240px}.card-img{width:100px;height:150px}}
     </style>
 </head>
@@ -175,20 +170,17 @@
         <!-- 问题选择 -->
         <div class="card" id="qSec">
             <h2 class="section-title">感应你的问题</h2>
-            <div class="nickname-area" style="text-align:center;margin-bottom:14px;">
-                <input type="text" id="nickname" placeholder="输入你的昵称" maxlength="20" style="width:180px;padding:10px 14px;font-size:.9rem;border:2px solid var(--purple);border-radius:20px;background:var(--bg2);color:var(--text);text-align:center;outline:none;">
-            </div>
             <div class="q-grid">
                 <div class="q-btn" data-t="爱情" onclick="selectQ(this)">
-                    <span class="icon">💕</span>
+                    <span class="icon">💗</span>
                     <span class="label">爱情</span>
                 </div>
                 <div class="q-btn" data-t="事业" onclick="selectQ(this)">
-                    <span class="icon">💼</span>
+                    <span class="icon">📈</span>
                     <span class="label">事业</span>
                 </div>
                 <div class="q-btn" data-t="财富" onclick="selectQ(this)">
-                    <span class="icon">💰</span>
+                    <span class="icon">💎</span>
                     <span class="label">财富</span>
                 </div>
             </div>
@@ -246,26 +238,7 @@
                     <div class="r-luck-g" id="rLuck"></div>
                 </div>
             </div>
-            <button class="btn" id="wishBtn" onclick="showWish()" style="margin-top:10px">💫 许个愿吧</button>
-        </div>
-        
-        <!-- 愿望页 -->
-        <div class="wish-page hidden" id="wishSec">
-            <div class="r-card" style="text-align:center">
-                <h2 class="section-title">🌟 许下你的愿望</h2>
-                <textarea id="wishText" placeholder="写下你的愿望..." maxlength="200" style="width:100%;height:100px;padding:12px;margin:15px 0;background:var(--bg2);border:2px solid var(--purple);border-radius:14px;color:#fff;font-size:.9rem;resize:none;outline:none;text-align:center;line-height:1.6"></textarea>
-                <button class="btn" onclick="submitWish()">✨ 提交愿望</button>
-            </div>
-        </div>
-        
-        <!-- 祝福页 -->
-        <div class="blessing-page hidden" id="blessSec">
-            <div class="r-card" style="text-align:center">
-                <div style="font-size:3rem;margin-bottom:15px">🌟</div>
-                <h2 class="section-title" id="blessTitle"></h2>
-                <p id="blessText" style="color:var(--text2);line-height:1.8;margin:15px 0;font-size:.95rem"></p>
-                <button class="btn" onclick="resetA()">↺ 重新占卜</button>
-            </div>
+            <button class="btn" onclick="resetA()">↺ 重新占卜</button>
         </div>
     </div>
     
@@ -411,11 +384,8 @@ function selectQ(el){
 
 // 开始占卜
 function startD(){
-    const nickname=document.getElementById('nickname').value.trim();
-    if(!nickname){alert('请输入你的昵称');return;}
     if(!qType){alert('请选择一个想问的问题');return;}
     question=qType;
-    window.userNickname=nickname;
     document.getElementById('qSec').classList.add('hidden');
     document.getElementById('drawSec').classList.remove('hidden');
 }
@@ -461,7 +431,6 @@ function showResult(){
     document.getElementById('drawSec').classList.add('hidden');
     document.getElementById('resultSec').classList.remove('hidden');
     
-    const nickname=window.userNickname||'神秘占卜师';
     document.getElementById('rImg').src=c.i;
     document.getElementById('rName').textContent=c.n;
     document.getElementById('rEn').textContent=c.e;
@@ -518,43 +487,6 @@ function viewLast(){
     }
 }
 
-// 显示愿望输入页
-function showWish(){
-    document.getElementById('resultSec').classList.add('hidden');
-    document.getElementById('wishSec').classList.remove('hidden');
-}
-
-// 提交愿望并显示祝福
-function submitWish(){
-    const wish=document.getElementById('wishText').value.trim();
-    if(!wish){alert('请输入你的愿望');return;}
-    
-    // 保存愿望到记录
-    const records=JSON.parse(localStorage.getItem('tarot_records')||'[]');
-    if(records.length>0){
-        records[records.length-1].wish=wish;
-        localStorage.setItem('tarot_records',JSON.stringify(records));
-    }
-    
-    // 生成祝福
-    const blessings=[
-        '宇宙已收到你的愿望，星光会指引你前进的方向～',
-        '当你在睡前闭上眼睛，星星会帮你实现梦想✨',
-        '你的愿望已在命运的轮盘中种下，静待花开🌸',
-        '星辰聆听你的心声，好运即将降临🌟',
-        '愿你的愿望如星光般璀璨，照亮你的未来💫',
-        '宇宙正在为你准备惊喜，保持信心～⭐',
-        '许下的愿望，就是种下的种子，终会发芽🌱',
-        '星星记住了你的愿望，好运正在路上🚀'
-    ];
-    const bless=blessings[Math.floor(Math.random()*blessings.length)];
-    
-    document.getElementById('wishSec').classList.add('hidden');
-    document.getElementById('blessSec').classList.remove('hidden');
-    document.getElementById('blessTitle').textContent='✨ '+window.userNickname+'，你的愿望已收到 ✨';
-    document.getElementById('blessText').textContent=bless;
-}
-
 // 重置
 function resetA(){
     location.reload();
@@ -564,6 +496,5 @@ function resetA(){
 createStars();
 checkDaily();
 </script>
-    <div style="text-align:center;padding:20px;font-size:12px;color:#666;">v1.1.0 (2026-03-20)</div>
 </body>
 </html>

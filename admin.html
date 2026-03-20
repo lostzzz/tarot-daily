@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星辰塔罗 - 管理后台</title>
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg:#0f0f1a;
+            --bg2:#1a1a2e;
+            --bg3:#252540;
+            --gold:#d4af37;
+            --gold2:#f0d875;
+            --purple:#7c3aed;
+            --purple2:#a78bfa;
+            --text:#f8fafc;
+            --text2:#cbd5e1;
+            --muted:#64748b;
+        }
+        body{background:var(--bg);color:var(--text);min-height:100vh;font-family:'Noto Sans SC',sans-serif}
+        .container{max-width:900px;margin:0 auto;padding:30px 20px}
+        
+        h1{font-family:'ZCOOL XiaoWei',serif;text-align:center;color:var(--gold);margin-bottom:30px;font-size:2rem}
+        
+        /* 登录页 */
+        .login{max-width:400px;margin:100px auto;text-align:center}
+        .login-box{background:linear-gradient(145deg,var(--bg2),var(--bg3));border-radius:20px;padding:40px;border:1px solid rgba(212,175,55,.2)}
+        .login input{width:100%;padding:14px 18px;margin-bottom:20px;font-size:1rem;border:2px solid var(--purple);border-radius:12px;background:var(--bg);color:var(--text);text-align:center;outline:none}
+        .login input:focus{border-color:var(--gold)}
+        .login .btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0f0f1a;border:none;border-radius:25px;cursor:pointer;font-size:1rem;font-weight:500;transition:.3s}
+        .login .btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(212,175,55,.4)}
+        
+        /* 数据页 */
+        .data-page{display:none}
+        .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+        .header .btn{padding:10px 20px;background:var(--bg3);color:var(--text);border:none;border-radius:12px;cursor:pointer;font-size:.9rem}
+        .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:30px}
+        .stat{background:linear-gradient(145deg,var(--bg2),var(--bg3));border-radius:16px;padding:20px;text-align:center;border:1px solid rgba(212,175,55,.15)}
+        .stat .num{font-size:2.5rem;color:var(--gold);font-family:'ZCOOL XiaoWei',serif}
+        .stat .label{color:var(--muted);font-size:.85rem;margin-top:5px}
+        
+        table{width:100%;background:linear-gradient(145deg,var(--bg2),var(--bg3));border-radius:16px;overflow:hidden;border-collapse:collapse}
+        th,td{padding:14px 16px;text-align:left;border-bottom:1px solid rgba(124,58,237,.15)}
+        th{background:rgba(124,58,237,.2);color:var(--gold);font-weight:500;font-size:.85rem}
+        td{font-size:.9rem;color:var(--text2)}
+        tr:hover{background:rgba(124,58,237,.08)}
+        
+        .empty{text-align:center;padding:60px 20px;color:var(--muted)}
+        .empty .icon{font-size:4rem;margin-bottom:15px}
+        
+        .card-tag{background:linear-gradient(135deg,var(--purple),#5b21b6);color:#fff;padding:4px 12px;border-radius:12px;font-size:.75rem}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 登录页 -->
+        <div class="login" id="loginPage">
+            <div class="login-box">
+                <h1>🔮 塔罗管理后台</h1>
+                <input type="password" id="password" placeholder="请输入管理密码" onkeyup="if(event.key==='Enter')login()">
+                <button class="btn" onclick="login()">登 录</button>
+                <p style="margin-top:20px;color:var(--muted);font-size:.8rem">默认密码: lost2000</p>
+            </div>
+        </div>
+        
+        <!-- 数据页 -->
+        <div class="data-page" id="dataPage">
+            <div class="header">
+                <h1>📊 占卜记录</h1>
+                <div>
+                    <button class="btn" onclick="exportData()">📥 导出</button>
+                    <button class="btn" onclick="clearData()" style="margin-left:10px;color:#f43f5e">🗑️ 清空</button>
+                    <button class="btn" onclick="logout()" style="margin-left:10px">🚪 退出</button>
+                </div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="num" id="totalCount">0</div>
+                    <div class="label">总占卜次数</div>
+                </div>
+                <div class="stat">
+                    <div class="num" id="loveCount">0</div>
+                    <div class="label">爱情占卜</div>
+                </div>
+                <div class="stat">
+                    <div class="num" id="careerCount">0</div>
+                    <div class="label">事业占卜</div>
+                </div>
+            </div>
+            
+            <table id="table">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>昵称</th>
+                        <th>问题类型</th>
+                        <th>塔罗牌</th>
+                        <th>愿望</th>
+                        <th>解读</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+            
+            <div class="empty" id="empty" style="display:none">
+                <div class="icon">🔮</div>
+                <p>暂无占卜记录</p>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const PASSWORD='lost2000';
+    
+    function login(){
+        const pwd=document.getElementById('password').value;
+        if(pwd===PASSWORD){
+            document.getElementById('loginPage').style.display='none';
+            document.getElementById('dataPage').style.display='block';
+            loadData();
+        }else{
+            alert('密码错误！');
+        }
+    }
+    
+    function logout(){
+        document.getElementById('loginPage').style.display='block';
+        document.getElementById('dataPage').style.display='none';
+        document.getElementById('password').value='';
+    }
+    
+    function loadData(){
+        const data=JSON.parse(localStorage.getItem('tarot_records')||'[]');
+        
+        if(data.length===0){
+            document.getElementById('table').style.display='none';
+            document.getElementById('empty').style.display='block';
+            return;
+        }
+        
+        document.getElementById('table').style.display='table';
+        document.getElementById('empty').style.display='none';
+        
+        // 统计
+        document.getElementById('totalCount').textContent=data.length;
+        document.getElementById('loveCount').textContent=data.filter(x=>x.question==='爱情').length;
+        document.getElementById('careerCount').textContent=data.filter(x=>x.question==='事业').length;
+        
+        // 渲染表格
+        const tbody=document.getElementById('tbody');
+        tbody.innerHTML=data.slice().reverse().map(r=>`
+            <tr>
+                <td>${r.date}</td>
+                <td style="color:var(--gold)">${r.nickname}</td>
+                <td><span class="card-tag">${r.question}</span></td>
+                <td>${r.card} (${r.cardEn})</td>
+                <td style="max-width:180px;color:var(--gold2)">${r.wish||'-'}</td>
+                <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.meaning}">${r.meaning}</td>
+            </tr>
+        `).join('');
+    }
+    
+    function exportData(){
+        const data=JSON.parse(localStorage.getItem('tarot_records')||'[]');
+        const csv='时间,昵称,问题类型,塔罗牌,英文名,愿望,解读\n'+data.map(r=>`${r.date},"${r.nickname}",${r.question},${r.card},${r.cardEn},"${(r.wish||'').replace(/"/g,'""')}","${r.meaning.replace(/"/g,'""')}"`).join('\n');
+        const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement('a');
+        a.href=url;
+        a.download='tarot_records.csv';
+        a.click();
+    }
+    
+    function clearData(){
+        if(confirm('确定要清空所有记录吗？此操作不可恢复！')){
+            localStorage.removeItem('tarot_records');
+            loadData();
+        }
+    }
+</script>
+</body>
+</html>
