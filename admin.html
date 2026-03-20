@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>星辰塔罗 - 管理后台</title>
+    <meta name="version" content="1.2.0">
+    <meta name="version-date" content="2026-03-20">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
@@ -115,6 +119,18 @@
 <script>
     const PASSWORD='lost2000';
     
+    // Firebase 配置
+    const firebaseConfig = {
+      apiKey: "AIzaSyB5q2LyiVYlOWYH8DKztGVxzX7bwupqCLg",
+      authDomain: "tarot-daily-b9083.firebaseapp.com",
+      projectId: "tarot-daily-b9083",
+      storageBucket: "tarot-daily-b9083.firebasestorage.app",
+      messagingSenderId: "980788151578",
+      appId: "1:980788151578:web:6f559638cf04295d9a58a3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    
     function login(){
         const pwd=document.getElementById('password').value;
         if(pwd===PASSWORD){
@@ -133,8 +149,27 @@
     }
     
     function loadData(){
-        const data=JSON.parse(localStorage.getItem('tarot_records')||'[]');
-        
+        // 从 Firebase 读取数据
+        db.ref('records').orderByChild('timestamp').limitToLast(100).on('value', (snapshot) => {
+            const data = [];
+            snapshot.forEach((child) => {
+                const record = child.val();
+                record.key = child.key;
+                // 转换时间戳
+                if(record.timestamp){
+                    const date = new Date(record.timestamp);
+                    record.date = date.toLocaleString('zh-CN');
+                }
+                data.push(record);
+            });
+            // 按时间倒序
+            data.reverse();
+            
+            renderData(data);
+        });
+    }
+    
+    function renderData(data){
         if(data.length===0){
             document.getElementById('table').style.display='none';
             document.getElementById('empty').style.display='block';

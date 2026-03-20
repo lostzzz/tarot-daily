@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>✨ 星辰塔罗 - 每日占卜</title>
-    <meta name="version" content="1.1.0">
+    <meta name="version" content="1.2.0">
     <meta name="version-date" content="2026-03-20">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
@@ -525,15 +527,43 @@ function showWish(){
 }
 
 // 提交愿望并显示祝福
+// Firebase 配置
+const firebaseConfig = {
+  apiKey: "AIzaSyB5q2LyiVYlOWYH8DKztGVxzX7bwupqCLg",
+  authDomain: "tarot-daily-b9083.firebaseapp.com",
+  projectId: "tarot-daily-b9083",
+  storageBucket: "tarot-daily-b9083.firebasestorage.app",
+  messagingSenderId: "980788151578",
+  appId: "1:980788151578:web:6f559638cf04295d9a58a3"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 function submitWish(){
     const wish=document.getElementById('wishText').value.trim();
     if(!wish){alert('请输入你的愿望');return;}
     
-    // 保存愿望到记录
+    // 保存愿望到本地记录
     const records=JSON.parse(localStorage.getItem('tarot_records')||'[]');
+    let currentRecord = null;
     if(records.length>0){
         records[records.length-1].wish=wish;
+        currentRecord = records[records.length-1];
         localStorage.setItem('tarot_records',JSON.stringify(records));
+    }
+    
+    // 上传到 Firebase
+    if(currentRecord){
+        db.ref('records').push({
+            nickname: currentRecord.nickname || '匿名',
+            question: currentRecord.question,
+            card: currentRecord.card,
+            cardEn: currentRecord.cardEn,
+            wish: wish,
+            meaning: currentRecord.meaning,
+            date: currentRecord.date,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
     }
     
     // 生成祝福
@@ -564,6 +594,6 @@ function resetA(){
 createStars();
 checkDaily();
 </script>
-    <div style="text-align:center;padding:20px;font-size:12px;color:#666;">v1.1.0 (2026-03-20)</div>
+    <div style="text-align:center;padding:20px;font-size:12px;color:#666;">v1.2.0 (2026-03-20)</div>
 </body>
 </html>
